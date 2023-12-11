@@ -1,6 +1,6 @@
 (function ($) {
     'use strict';
-
+   
     var form = $('.contact__form'),
         message = $('.contact__msg'),
         form_data;
@@ -8,32 +8,37 @@
     // Success function
     function done_func(response) {
         message.fadeIn().removeClass('alert-danger').addClass('alert-success');
-        message.text(response);
+        message.text(response.text);
         setTimeout(function () {
             message.fadeOut();
         }, 2000);
         form.find('input:not([type="submit"]), textarea').val('');
     }
 
-    // fail function
-    function fail_func(data) {
-        message.fadeIn().removeClass('alert-success').addClass('alert-success');
-        message.text(data.responseText);
+    // Fail function
+    function fail_func(error) {
+        message.fadeIn().removeClass('alert-success').addClass('alert-danger');
+        message.text(error.text);
         setTimeout(function () {
             message.fadeOut();
         }, 2000);
     }
-    
+
     form.submit(function (e) {
         e.preventDefault();
-        form_data = $(this).serialize();
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: form_data
-        })
-        .done(done_func)
-        .fail(fail_func);
+
+        // Get form data
+        form_data = {
+            name: form.find('[name="name"]').val(),
+            email: form.find('[name="email"]').val(),
+            subject: form.find('[name="subject"]').val(),
+            message: form.find('[name="message"]').val(),
+        };
+
+        // Send email using EmailJS
+        emailjs.send('service_h8wd9da', 'template_kvar5ht', form_data)
+            .then(done_func, fail_func);
+            
     });
-    
+
 })(jQuery);
